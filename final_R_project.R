@@ -1,5 +1,3 @@
-# I'm Using R language for the analysis purposes
-# I've done the coding using R studio
 # My data set contains majorly 3 types :
 #           1) OUTCOMES
 #           2) STOP AND SEARCH
@@ -54,12 +52,38 @@ print(names(dataframes))
 l_out_04 <- dataframes$`2024-04-city-of-london-outcomes`
 l_out_05 <- dataframes$`2024-05-city-of-london-outcomes`
 l_out_06 <- dataframes$`2024-06-city-of-london-outcomes`
+
 s_out_04 <- dataframes$`2024-04-sussex-outcomes`
 s_out_05 <- dataframes$`2024-05-sussex-outcomes`
 s_out_06 <- dataframes$`2024-06-sussex-outcomes`
 
+a_sov_out_04 <- dataframes$`2024-04-avon-and-somerset-outcomes`
+a_sov_out_05 <- dataframes$`2024-05-avon-and-somerset-outcomes`
+a_sov_out_06 <- dataframes$`2024-06-avon-and-somerset-outcomes`
+
+bed_out_04 <- dataframes$`2024-04-bedfordshire-outcomes`
+bed_out_05 <- dataframes$`2024-05-bedfordshire-outcomes`
+bed_out_06 <- dataframes$`2024-06-bedfordshire-outcomes`
+
+cam_out_04 <- dataframes$`2024-04-cambridgeshire-outcomes`
+cam_out_05 <- dataframes$`2024-05-cambridgeshire-outcomes`
+cam_out_06 <- dataframes$`2024-06-cambridgeshire-outcomes`
+
+clev_out_04 <- dataframes$`2024-04-cleveland-outcomes`
+clev_out_05 <- dataframes$`2024-05-cleveland-outcomes`
+clev_out_06 <- dataframes$`2024-06-cleveland-outcomes`
+
+cumb_out_04 <- dataframes$`2024-04-cumbria-outcomes`
+cumb_out_05 <- dataframes$`2024-05-cumbria-outcomes`
+cumb_out_06 <- dataframes$`2024-06-cumbria-outcomes`
+
 # Since all the 'outcomes' df have same columns.Let's combine them 
-outcomes_df <- bind_rows(l_out_04,l_out_05,l_out_06,s_out_04,s_out_05,s_out_06)
+outcomes_df <- bind_rows(l_out_04,l_out_05,l_out_06,
+                         s_out_04,s_out_05,s_out_06,
+                         a_sov_out_04,a_sov_out_05,a_sov_out_06,
+                         bed_out_04,bed_out_05,bed_out_06,
+                         cam_out_04,cam_out_05,cam_out_06,
+                         cumb_out_04,cumb_out_05,cumb_out_06)
 
 
 #*********************    DATA CLEANING   *******************************
@@ -209,8 +233,4 @@ leaflet(outcomes_df) %>%
     label = ~paste0("Crime ID: ", crime_id)
   ) %>%
   setView(lng = mean(outcomes_df$longitude), lat = mean(outcomes_df$latitude), zoom = 10)
-
-
-
-#************************ STOP AND SEARCH **********************************
 
