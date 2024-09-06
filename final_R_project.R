@@ -1,3 +1,5 @@
+# I'm Using R language for the analysis purposes
+# I've done the coding using R studio
 # My data set contains majorly 3 types :
 #           1) OUTCOMES
 #           2) STOP AND SEARCH
