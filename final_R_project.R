@@ -384,6 +384,27 @@ geom_bar(stat = "identity", fill = "blue") +
   theme_minimal() +
   coord_flip()
 
+# Converting the  df to 'Simple Feature' df
+class(street_df) # To know the df class
+st_crs(street_df) # To check whether the df is in sf format or not
+
+sf_street_df <- st_as_sf(street_df,
+                                  coords = c("longitude", "latitude"),
+                                  crs = 4326,     
+                                  na.fail = FALSE) 
+st_crs(sf_street_df) # To check whether the df is in sf format or not
+
+# Plotting the crime on real map
+
+ggplot() +
+  annotation_map_tile() +  # Used for creating a real map background
+  geom_sf(data = sf_street_df, aes(fill = crime_type, color = crime_type)) +
+  theme(
+    legend.position = "bottom",        # Position the legend below the plot
+    legend.direction = "horizontal",   # Arrange the legend items horizontally
+    legend.box = "horizontal"          # Ensure that the legend box is also horizontal
+  )
+
 
 
 
