@@ -86,7 +86,7 @@ outcomes_df <- bind_rows(l_out_04,l_out_05,l_out_06,
                          cumb_out_04,cumb_out_05,cumb_out_06)
 
 
-#*********************    DATA CLEANING   *******************************
+#                         DATA CLEANING   
 
 # cleaning the column names
 outcomes_df <- outcomes_df %>%
@@ -233,4 +233,212 @@ leaflet(outcomes_df) %>%
     label = ~paste0("Crime ID: ", crime_id)
   ) %>%
   setView(lng = mean(outcomes_df$longitude), lat = mean(outcomes_df$latitude), zoom = 10)
+
+
+
+#************************ STREET **********************************
+
+# Load all the necessary dataframes
+
+l_street_04 <- dataframes$`2024-04-city-of-london-street`
+l_street_05 <- dataframes$`2024-05-city-of-london-street`
+l_street_06 <- dataframes$`2024-06-city-of-london-street`
+
+s_street_04 <- dataframes$`2024-04-sussex-street`
+s_street_05 <- dataframes$`2024-05-sussex-street`
+s_street_06 <- dataframes$`2024-05-sussex-street`
+
+a_street_04 <- dataframes$`2024-04-avon-and-somerset-street`
+a_street_05 <- dataframes$`2024-05-avon-and-somerset-street`
+a_street_06 <- dataframes$`2024-06-avon-and-somerset-street`
+
+bed_street_04 <- dataframes$`2024-04-bedfordshire-street`
+bed_street_05 <- dataframes$`2024-05-bedfordshire-street`
+bed_street_06 <- dataframes$`2024-06-bedfordshire-street`
+
+cam_street_04 <- dataframes$`2024-04-cambridgeshire-street`
+cam_street_05 <- dataframes$`2024-05-cambridgeshire-street`
+cam_street_06 <- dataframes$`2024-06-cambridgeshire-street`
+
+clev_street_04 <- dataframes$`2024-04-cleveland-street`
+clev_street_05 <- dataframes$`2024-05-cleveland-street`
+clev_street_06 <- dataframes$`2024-06-cleveland-street`
+
+cumb_street_04 <- dataframes$`2024-04-cumbria-street`
+cumb_street_05 <- dataframes$`2024-05-cumbria-street`
+cumb_street_06 <- dataframes$`2024-06-cumbria-street`
+
+
+# Since all the 'street' df have same columns.Let's combine them 
+street_df <- bind_rows(l_street_04,l_street_05,l_street_06,
+                       s_street_04,s_street_05,s_street_06,
+                       a_street_04,a_street_05,a_street_06,
+                       bed_street_04,bed_street_05,bed_street_06,
+                       cam_street_04,cam_street_05,cam_street_06,
+                       clev_street_04,clev_street_05,clev_street_06,
+                       cumb_street_04,cumb_street_05,cumb_street_06)
+
+#                         DATA CLEANING   
+
+# cleaning the column names
+street_df <- street_df %>%
+  clean_names()
+
+#Since the context column have only NULL values.Remove it
+street_df <- street_df %>%
+  select(-context)
+
+#Since 'month' column is character data type and is in the format of 'yyyy-mm'.
+#Let's get the mm part alone.
+street_df$month <- substr(street_df$month, 6, 7)
+
+# Convert the character data type into numeric data type
+street_df$month <- as.numeric(street_df$month)
+
+
+#To check the NULL values in each row
+NULL_street <- street_df %>%
+  filter(rowSums(is.na(.)) > 0)
+
+#Replacing NULL values in 'LOCATION' column with 'No Location'
+street_df <- street_df %>%
+  mutate(location = ifelse(location =='','No Location',location ))
+
+#Removing all the NULL values
+street_df <- street_df %>%
+  filter(rowSums(is.na(.)) == 0)
+
+#               UNDERSTANDING OF THE DATASET
+
+#summarizing the data set
+summary(street_df)
+
+#Table for crime type & last outcome category
+table(street_df$crime_type)
+table(street_df$last_outcome_category)
+
+#Getting the count of crimes
+street_crime_counts <- street_df %>%
+  count(crime_type, sort = TRUE)
+
+#Top 10 most dangerous locations
+street_top_locations <- street_df %>%
+  count(location,sort = TRUE) %>%
+  top_n(10)
+#
+crime_month <- street_df %>%
+  group_by(month) %>%
+  summarise(Count = n()) %>%
+  arrange(desc(Count))
+
+
+
+
+#                     DATA VISULIZATION
+
+# Bar chart for 'Crime Type' vs 'crime count'
+ggplot(street_crime_counts, aes(x = fct_reorder(crime_type, n), y = n)) +
+  geom_bar(stat = "identity", fill = "orange") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title = "Crimes by Type",
+       x = "Crime Type", y = "Crime Count")
+
+#pie chart for 'Crime Type' vs 'crime count'
+ggplot(street_crime_counts, aes(x = "", y = n, fill = crime_type)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar(theta = "y") +
+  theme_minimal() +
+  labs(title = "Crimes by Type",
+       x = NULL, y = NULL) +
+  theme(axis.text.x = element_blank(), 
+        axis.ticks = element_blank(),    
+        panel.grid = element_blank())    
+
+# Bar chart for  'Top 10 Crime Locations' vs 'Number of Crimes'
+ggplot(street_top_locations, aes(x = fct_reorder(location, n), y = n)) +
+  geom_bar(stat = "identity", fill = "darkgreen") +
+  coord_flip() +
+  theme_minimal() +
+  labs(title = "Top 10 Crime Locations",
+       x = "Location", y = "Number of Crimes")
+
+
+# pie chart for  'Top 10 Crime Locations' vs 'Number of Crimes'
+ggplot(street_top_locations, aes(x = "", y = n, fill = location)) +
+  geom_bar(stat = "identity", width = 1) +
+  coord_polar(theta = "y") +
+  theme_minimal() +
+  labs(title = "Top 10 Crime Locations",
+       x = NULL, y = NULL) +
+  theme(axis.text.x = element_blank(),   
+        axis.ticks = element_blank(),    
+        panel.grid = element_blank())    
+
+# Bar plot for 'month' VS 'crime counts'
+ggplot(crime_month, aes(x = reorder(month, Count), y = Count)) +
+geom_bar(stat = "identity", fill = "blue") +
+  labs(title = "Number of Crimes by Month (Descending Order)", 
+       x = "Month", 
+       y = "Crime Count") +
+  theme_minimal() +
+  coord_flip()
+
+
+
+
+#Interactive Plotting the crime on real map
+street_df$crime_type <- as.factor(street_df$crime_type)
+
+# Create a color palette for crime types
+pal <- colorFactor(topo.colors(length(unique(london_outcomes_04$crime_type))), domain = london_outcomes_04$crime_type)
+
+leaflet(street_df) %>%
+  addTiles() %>%
+  addCircleMarkers(~longitude, ~latitude, color = ~pal(crime_type),
+                   popup = ~paste("Type:", crime_type, "<br>",
+                                  "Outcome:", last_outcome_category),
+                   radius = 4) %>%
+  addLegend("bottomright", pal = pal,
+            values = ~crime_type, title = "Crime Type")
+
+
+#                         PREDICTIONS
+
+# Since these columns are characters convert them into factors
+street_df$crime_type <- as.factor(street_df$crime_type)
+street_df$last_outcome_category <- as.factor(street_df$last_outcome_category)
+street_df$location <- as.factor(street_df$location)
+
+memory.limit(size = 16000)
+# Split data into training and testing sets
+set.seed(123)
+train_index <- createDataPartition(street_df$last_outcome_category, p = 0.8, list = FALSE)
+
+train_data <- street_df[sample(nrow(train_data), 10000), ]
+test_data <- street_df[-train_index, ]
+
+# Train a Random Forest model to predict crime outcomes
+#model <- train(last_outcome_category ~ crime_type + location + longitude + latitude,
+#               data = train_data, 
+#              method = "rf", 
+#             trControl = trainControl(method = "cv", number = 5), 
+#            importance = TRUE)
+
+# Predict outcomes on the test set
+#predictions <- predict(model, test_data)
+
+# Confusion matrix
+#confusionMatrix(predictions, test_data$last_outcome_category)
+
+
+
+
+
+
+
+
+
+
+
 
